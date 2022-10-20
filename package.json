@@ -1,0 +1,28 @@
+{
+  "name": "fso-blog",
+  "version": "0.0.1",
+  "description": "A blog list application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VincentChuck/FSO-Blog.git"
+  },
+  "author": "Vincent Chuck",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/VincentChuck/FSO-Blog/issues"
+  },
+  "homepage": "https://github.com/VincentChuck/FSO-Blog#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongoose": "^6.6.5",
+    "nodemon": "^2.0.20"
+  }
+}
