@@ -1,12 +1,12 @@
 GET http://localhost:3003/api/blogs
 
 ### add person
-POST http://localhost:3001/api/blogs/ HTTP/3
+POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
 
 {
-  title: First,
-  author: VC,
-  url: vc.com,
-  likes: 99
+  "title": "Second",
+  "author": "VC",
+  "url": "vc.com",
+  "likes": 101
 }
