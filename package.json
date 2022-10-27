@@ -4,9 +4,9 @@
   "description": "A blog list application",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose",
-    "start": "node index.js",
-    "dev": "nodemon index.js"
+    "test": "NODE_ENV=test jest --verbose --forceExit",
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js"
   },
   "repository": {
     "type": "git",
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "jest": "^29.2.1",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "supertest": "^6.3.1"
   }
 }
