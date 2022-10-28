@@ -32,6 +32,31 @@ test('unique identifier prop is id instead of _id', async () => {
   })
 })
 
+test('a valid blog can be added', async () => {
+  jest.setTimeout(10000)
+
+  const newBlog = {
+    title: 'third blog',
+    author: 'FSO',
+    url: 'https://github.com/fullstack-hy2020/',
+    likes: 999
+  }
+
+  //verify POST request creates a new blog post
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  //verify # of blogs increase by 1
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+
+  //content is saved correctly to database
+  expect(blogsAtEnd).toContainEqual(expect.objectContaining(newBlog))
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
