@@ -73,6 +73,30 @@ test('likes property defaults to 0 if missing', async () => {
 
 })
 
+test('blogs without title or url are not added', async () => {
+  const blogWithoutTitle = {
+    author: 'VC',
+    url: 'https://github.com/VincentChuck/FSO-Blog'
+  }
+  const blogWithoutUrl = {
+    title: 'blog with no likes prop',
+    author: 'VC'
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutTitle)
+    .expect(400)
+
+  await api
+    .post('/api/blogs')
+    .send(blogWithoutUrl)
+    .expect(400)
+
+  const blogsAtEnd = await helper.notesInDb
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+}, 10000)
+
 afterAll(() => {
   mongoose.connection.close()
 })
