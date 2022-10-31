@@ -15,87 +15,92 @@ beforeEach(async () => {
   }
 })
 
-test('blogs are returned as json', async () => {
-  await api
-    .get('/api/blogs')
-    .expect(200)
-    .expect('Content-Type', /application\/json/)
-})
+describe('when there is initially some notes saved', () => {
+  test('blogs are returned as json', async () => {
+    await api
+      .get('/api/blogs')
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+  })
 
-test('unique identifier prop is id instead of _id', async () => {
-  let response = await api.get('/api/blogs')
-  let blogs = response.body
-  console.dir(blogs)
-  blogs.forEach(blog => {
-    expect(blog._id).not.toBeDefined()
-    expect(blog.id).toBeDefined()
+  test('unique identifier prop is id instead of _id', async () => {
+    let response = await api.get('/api/blogs')
+    let blogs = response.body
+    blogs.forEach(blog => {
+      expect(blog._id).not.toBeDefined()
+      expect(blog.id).toBeDefined()
+    })
   })
 })
 
-test('a valid blog can be added', async () => {
-  jest.setTimeout(10000)
+describe('viewing a specific note', () => {
+  test('a valid blog can be added', async () => {
+    jest.setTimeout(10000)
 
-  const newBlog = {
-    title: 'third blog',
-    author: 'FSO',
-    url: 'https://github.com/fullstack-hy2020/',
-    likes: 999
-  }
+    const newBlog = {
+      title: 'third blog',
+      author: 'FSO',
+      url: 'https://github.com/fullstack-hy2020/',
+      likes: 999
+    }
 
-  //verify POST request creates a new blog post
-  await api
-    .post('/api/blogs')
-    .send(newBlog)
-    .expect(201)
-    .expect('Content-Type', /application\/json/)
+    //verify POST request creates a new blog post
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
 
-  const blogsAtEnd = await helper.blogsInDb()
-  //verify # of blogs increase by 1
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+    const blogsAtEnd = await helper.blogsInDb()
+    //verify # of blogs increase by 1
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  //content is saved correctly to database
-  expect(blogsAtEnd).toContainEqual(expect.objectContaining(newBlog))
+    //content is saved correctly to database
+    expect(blogsAtEnd).toContainEqual(expect.objectContaining(newBlog))
+  })
 })
 
-test('likes property defaults to 0 if missing', async () => {
-  const newBlog = {
-    title: 'blog with no likes prop',
-    author: 'VC',
-    url: 'https://github.com/VincentChuck/FSO-Blog'
-  }
+describe('addition of a new note', () => {
+  test('likes property defaults to 0 if missing', async () => {
+    const newBlog = {
+      title: 'blog with no likes prop',
+      author: 'VC',
+      url: 'https://github.com/VincentChuck/FSO-Blog'
+    }
 
-  const response = await api
-    .post('/api/blogs')
-    .send(newBlog)
+    const response = await api
+      .post('/api/blogs')
+      .send(newBlog)
 
-  const addedBlog = await Blog.findById(response.body.id)
-  expect(addedBlog.likes).toBeDefined()
+    const addedBlog = await Blog.findById(response.body.id)
+    expect(addedBlog.likes).toBeDefined()
 
+  })
+
+  test('blogs without title or url are not added', async () => {
+    const blogWithoutTitle = {
+      author: 'VC',
+      url: 'https://github.com/VincentChuck/FSO-Blog'
+    }
+    const blogWithoutUrl = {
+      title: 'blog with no likes prop',
+      author: 'VC'
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(blogWithoutTitle)
+      .expect(400)
+
+    await api
+      .post('/api/blogs')
+      .send(blogWithoutUrl)
+      .expect(400)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+  }, 10000)
 })
-
-test('blogs without title or url are not added', async () => {
-  const blogWithoutTitle = {
-    author: 'VC',
-    url: 'https://github.com/VincentChuck/FSO-Blog'
-  }
-  const blogWithoutUrl = {
-    title: 'blog with no likes prop',
-    author: 'VC'
-  }
-
-  await api
-    .post('/api/blogs')
-    .send(blogWithoutTitle)
-    .expect(400)
-
-  await api
-    .post('/api/blogs')
-    .send(blogWithoutUrl)
-    .expect(400)
-
-  const blogsAtEnd = await helper.notesInDb
-  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
-}, 10000)
 
 afterAll(() => {
   mongoose.connection.close()

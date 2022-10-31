@@ -5,8 +5,15 @@ POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
 
 {
-  "title": "test",
   "author": "VC",
   "url": "vc.com",
   "likes": 101
+}
+
+### modify likes
+PUT http://localhost:3003/api/blogs/635d3a7c6b563a31747a1023
+Content-Type: application/json
+
+{
+  "likes": 9
 }
