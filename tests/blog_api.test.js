@@ -102,6 +102,41 @@ describe('addition of a new note', () => {
   }, 10000)
 })
 
+describe('deleting a specific note', () => {
+  test('succeeds with status code 204 if id is valid', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(204)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
+
+    expect(blogsAtEnd).not.toContainEqual(blogToDelete)
+  })
+
+})
+
+describe('updating a specific note', () => {
+  test('note is updated with status code 200', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+    const updatedLikes = blogToUpdate.likes + Math.floor(Math.random() *100)
+
+    const returnedNote = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send({ 'likes': updatedLikes })
+      .expect(200)
+
+    expect(returnedNote.body.likes).toBe(updatedLikes)
+
+    const updatedNoteInDb = await Blog.findById(blogToUpdate.id)
+    expect(updatedNoteInDb.likes).toBe(updatedLikes)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
