@@ -1,0 +1,11 @@
+GET http://localhost:3003/api/users
+
+### add person
+POST http://localhost:3003/api/users/ HTTP/3
+content-type: application/json
+
+{
+  "username": "vc",
+  "name": "vincent",
+  "password": "test"
+}
