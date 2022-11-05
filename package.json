@@ -4,7 +4,7 @@
   "description": "A blog list application",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test jest --verbose --forceExit",
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit",
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
     "lint": "eslint ."

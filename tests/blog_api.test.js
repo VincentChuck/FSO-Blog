@@ -3,7 +3,9 @@ const mongoose = require('mongoose')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
+const bcrypt = require('bcrypt')
 
+const User = require('../models/user')
 const Blog = require('../models/blog')
 
 beforeEach(async () => {
@@ -15,7 +17,7 @@ beforeEach(async () => {
   }
 })
 
-describe('when there is initially some notes saved', () => {
+describe('when there is initially some blogs saved', () => {
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -33,7 +35,7 @@ describe('when there is initially some notes saved', () => {
   })
 })
 
-describe('viewing a specific note', () => {
+describe('viewing a specific blog', () => {
   test('a valid blog can be added', async () => {
     jest.setTimeout(10000)
 
@@ -60,7 +62,7 @@ describe('viewing a specific note', () => {
   })
 })
 
-describe('addition of a new note', () => {
+describe('addition of a new blog', () => {
   test('likes property defaults to 0 if missing', async () => {
     const newBlog = {
       title: 'blog with no likes prop',
@@ -102,7 +104,7 @@ describe('addition of a new note', () => {
   }, 10000)
 })
 
-describe('deleting a specific note', () => {
+describe('deleting a specific blog', () => {
   test('succeeds with status code 204 if id is valid', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToDelete = blogsAtStart[0]
@@ -119,22 +121,112 @@ describe('deleting a specific note', () => {
 
 })
 
-describe('updating a specific note', () => {
-  test('note is updated with status code 200', async () => {
+describe('updating a specific blog', () => {
+  test('blog is updated with status code 200', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToUpdate = blogsAtStart[0]
     const updatedLikes = blogToUpdate.likes + Math.floor(Math.random() *100)
 
-    const returnedNote = await api
+    const returnedBlog = await api
       .put(`/api/blogs/${blogToUpdate.id}`)
       .send({ 'likes': updatedLikes })
       .expect(200)
 
-    expect(returnedNote.body.likes).toBe(updatedLikes)
+    expect(returnedBlog.body.likes).toBe(updatedLikes)
 
-    const updatedNoteInDb = await Blog.findById(blogToUpdate.id)
-    expect(updatedNoteInDb.likes).toBe(updatedLikes)
+    const updatedBlogInDb = await Blog.findById(blogToUpdate.id)
+    expect(updatedBlogInDb.likes).toBe(updatedLikes)
   })
+})
+
+describe('adding a new user', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+
+    const passwordHash = await bcrypt.hash('samplePassword', 10)
+    const user = new User({ username: 'sampleUser', passwordHash })
+
+    await user.save()
+  })
+
+  test('user is created with status code 201', async () => {
+    const usersAtStart = await helper.usersInDb()
+
+    const newUser = {
+      username: 'newUser',
+      name: 'New User',
+      password: 'new password'
+    }
+
+    await api
+      .post('/api/users')
+      .send(newUser)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    const usersAtEnd = await helper.usersInDb()
+    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
+
+    const userNames = usersAtEnd.map(user => user.username)
+    expect(userNames).toContain(newUser.username)
+  })
+
+  test('invalid user is not created with status code 400', async () => {
+    const errMissing = 'missing username or password'
+    const errExist =  'username must be unique'
+    const errShort =  'username and password must be at least 3 characters long'
+    const testUsers = {
+      noUsername: {
+        body: {
+          name: 'No Username',
+          password: 'some password'
+        },
+        error: errMissing
+      },
+      noPassword: {
+        body: {
+          username: 'noPassword',
+          name: 'No Password',
+        },
+        error: errMissing
+      },
+      existUsername: {
+        body: {
+          username: 'sampleUser',
+          name: 'New User',
+          password: 'new password'
+        },
+        error: errExist
+      },
+      shortUsername: {
+        body: {
+          username: 'aa',
+          name: 'aaa',
+          password: 'aaa'
+        },
+        error: errShort
+      },
+      shortPassword: {
+        body: {
+          username: 'bbb',
+          name: 'bbb',
+          password: 'bb'
+        },
+        error: errShort
+      }
+    }
+
+    for (let key in testUsers) {
+      var user = testUsers[key].body
+      var error = testUsers[key].error
+      var result = await api
+        .post('/api/users')
+        .send(user)
+        .expect(400)
+        .expect('Content-Type', /application\/json/)
+      expect(result.body.error).toContain(error)
+    }
+  }, 10000)
 })
 
 afterAll(() => {
