@@ -3,13 +3,13 @@ GET http://localhost:3003/api/blogs
 ### 
 POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZjY2MiLCJpZCI6IjYzNmEyMTFlNmI0ZjAwMDQwZDZiZjNhYyIsImlhdCI6MTY2Nzk4NTEyMiwiZXhwIjoxNjY3OTg4NzIyfQ.u4Q39FvOrTPaE4yqsyo5CiHIJDEOfj6v6qcUiY5uwX0
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJiYiIsImlkIjoiNjM2YmFiNGNlOGI3MTljODY5OTQzNjgxIiwiaWF0IjoxNjY4MDAwNjI4LCJleHAiOjE2NjgwMDQyMjh9.4dcB1naV4P1D73Q7xVQdacWxPUXlpR6CYlEBBg31O7E
 
 {
-  "title": "test tokenExtractor middleware",
-  "author": "VC",
-  "url": "vc.com",
-  "likes": 11
+  "title": "test authorization to delete blog",
+  "author": "bbb",
+  "url": "bbb.com",
+  "likes": 111  
 }
 
 ### modify likes
@@ -19,3 +19,7 @@ Content-Type: application/json
 {
   "likes": 9
 }
+
+### delete blog
+DELETE http://localhost:3003/api/blogs/636bac4ae8b719c86994368d
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJiYiIsImlkIjoiNjM2YmFiNGNlOGI3MTljODY5OTQzNjgxIiwiaWF0IjoxNjY4MDAwNjI4LCJleHAiOjE2NjgwMDQyMjh9.4dcB1naV4P1D73Q7xVQdacWxPUXlpR6CYlEBBg31O7E

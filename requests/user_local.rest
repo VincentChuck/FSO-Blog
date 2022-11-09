@@ -9,3 +9,13 @@ content-type: application/json
   "name": "vincent",
   "password": "test"
 }
+
+### add person
+POST http://localhost:3003/api/users/ HTTP/3
+content-type: application/json
+
+{
+  "username": "bbb",
+  "name": "bbbname",
+  "password": "bbbpw"
+}
