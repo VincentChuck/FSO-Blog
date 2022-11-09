@@ -3,9 +3,10 @@ GET http://localhost:3003/api/blogs
 ### 
 POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZjY2MiLCJpZCI6IjYzNmEyMTFlNmI0ZjAwMDQwZDZiZjNhYyIsImlhdCI6MTY2Nzk4MTYxOCwiZXhwIjoxNjY3OTgxNjQ4fQ.ymIY4d7A2lBHrtPUZix-bXkbUETH4tPqryd-iL4R7Zo
 
 {
-  "title": "exe 4.17",
+  "title": "test token expiry",
   "author": "VC",
   "url": "vc.com",
   "likes": 11
