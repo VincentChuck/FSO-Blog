@@ -3,10 +3,8 @@ const mongoose = require('mongoose')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
-const bcrypt = require('bcrypt')
-
-const User = require('../models/user')
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -35,21 +33,39 @@ describe('when there is initially some blogs saved', () => {
   })
 })
 
-describe('viewing a specific blog', () => {
-  test('a valid blog can be added', async () => {
-    jest.setTimeout(10000)
+let token
+const login = async () => {
+  token = null
+  await User.deleteMany({})
 
-    const newBlog = {
-      title: 'third blog',
-      author: 'FSO',
-      url: 'https://github.com/fullstack-hy2020/',
-      likes: 999
-    }
+  for (let user of helper.initialUsers) {
+    await api
+      .post('/api/users')
+      .send(user)
+  }
 
+  const loginRes = await api
+    .post('/api/login')
+    .send(helper.initialUsers[0])
+  token = loginRes.body.token
+}
+
+const newBlog = {
+  title: 'third blog',
+  author: 'FSO',
+  url: 'https://github.com/fullstack-hy2020/',
+  likes: 999
+}
+
+describe('addition of a new blog', () => {
+  beforeEach(login)
+
+  test('succeeds with valid data', async () => {
     //verify POST request creates a new blog post
     await api
       .post('/api/blogs')
       .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -60,9 +76,7 @@ describe('viewing a specific blog', () => {
     //content is saved correctly to database
     expect(blogsAtEnd).toContainEqual(expect.objectContaining(newBlog))
   })
-})
 
-describe('addition of a new blog', () => {
   test('likes property defaults to 0 if missing', async () => {
     const newBlog = {
       title: 'blog with no likes prop',
@@ -72,6 +86,7 @@ describe('addition of a new blog', () => {
 
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(newBlog)
 
     const addedBlog = await Blog.findById(response.body.id)
@@ -79,7 +94,7 @@ describe('addition of a new blog', () => {
 
   })
 
-  test('blogs without title or url are not added', async () => {
+  test('fails with status code 400 if missing title or url', async () => {
     const blogWithoutTitle = {
       author: 'VC',
       url: 'https://github.com/VincentChuck/FSO-Blog'
@@ -91,38 +106,81 @@ describe('addition of a new blog', () => {
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(blogWithoutTitle)
       .expect(400)
 
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${token}`)
       .send(blogWithoutUrl)
       .expect(400)
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
   }, 10000)
+
+  test('fails with status code 401 if token not provided', async () => {
+
+    //verify POST request creates a new blog post
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(401)
+
+    const blogsAtEnd = await helper.blogsInDb()
+    //verify # of blogs remains the same
+    expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length)
+
+    //content was not saved
+    expect(blogsAtEnd).not.toContainEqual(expect.objectContaining(newBlog))
+  })
 })
 
 describe('deleting a specific blog', () => {
-  test('succeeds with status code 204 if id is valid', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToDelete = blogsAtStart[0]
+  beforeEach(login)
 
+  test('succeeds with status code 204 if id valid', async () => {
+    let newBlogRes = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
+
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = newBlogRes.body
     await api
       .delete(`/api/blogs/${blogToDelete.id}`)
+      .set('Authorization', `bearer ${token}`)
       .expect(204)
 
     const blogsAtEnd = await helper.blogsInDb()
     expect(blogsAtEnd).toHaveLength(blogsAtStart.length - 1)
 
-    expect(blogsAtEnd).not.toContainEqual(blogToDelete)
+    expect(blogsAtEnd).not.toContainEqual(expect.objectContaining(blogToDelete))
+  })
+
+  test('fails with status code 401 if token missing', async () => {
+    let newBlogRes = await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .set('Authorization', `bearer ${token}`)
+
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToDelete = newBlogRes.body
+    await api
+      .delete(`/api/blogs/${blogToDelete.id}`)
+      .expect(401)
+
+    const blogsAtEnd = await helper.blogsInDb()
+
+    expect(blogsAtEnd).toHaveLength(blogsAtStart.length)
+    expect(blogsAtEnd).toContainEqual(expect.objectContaining(newBlog))
   })
 
 })
 
 describe('updating a specific blog', () => {
-  test('blog is updated with status code 200', async () => {
+  test('likes can be updated', async () => {
     const blogsAtStart = await helper.blogsInDb()
     const blogToUpdate = blogsAtStart[0]
     const updatedLikes = blogToUpdate.likes + Math.floor(Math.random() *100)
@@ -137,96 +195,6 @@ describe('updating a specific blog', () => {
     const updatedBlogInDb = await Blog.findById(blogToUpdate.id)
     expect(updatedBlogInDb.likes).toBe(updatedLikes)
   })
-})
-
-describe('adding a new user', () => {
-  beforeEach(async () => {
-    await User.deleteMany({})
-
-    const passwordHash = await bcrypt.hash('samplePassword', 10)
-    const user = new User({ username: 'sampleUser', passwordHash })
-
-    await user.save()
-  })
-
-  test('user is created with status code 201', async () => {
-    const usersAtStart = await helper.usersInDb()
-
-    const newUser = {
-      username: 'newUser',
-      name: 'New User',
-      password: 'new password'
-    }
-
-    await api
-      .post('/api/users')
-      .send(newUser)
-      .expect(201)
-      .expect('Content-Type', /application\/json/)
-
-    const usersAtEnd = await helper.usersInDb()
-    expect(usersAtEnd).toHaveLength(usersAtStart.length + 1)
-
-    const userNames = usersAtEnd.map(user => user.username)
-    expect(userNames).toContain(newUser.username)
-  })
-
-  test('invalid user is not created with status code 400', async () => {
-    const errMissing = 'missing username or password'
-    const errExist =  'username must be unique'
-    const errShort =  'username and password must be at least 3 characters long'
-    const testUsers = {
-      noUsername: {
-        body: {
-          name: 'No Username',
-          password: 'some password'
-        },
-        error: errMissing
-      },
-      noPassword: {
-        body: {
-          username: 'noPassword',
-          name: 'No Password',
-        },
-        error: errMissing
-      },
-      existUsername: {
-        body: {
-          username: 'sampleUser',
-          name: 'New User',
-          password: 'new password'
-        },
-        error: errExist
-      },
-      shortUsername: {
-        body: {
-          username: 'aa',
-          name: 'aaa',
-          password: 'aaa'
-        },
-        error: errShort
-      },
-      shortPassword: {
-        body: {
-          username: 'bbb',
-          name: 'bbb',
-          password: 'bb'
-        },
-        error: errShort
-      }
-    }
-
-    for (let key in testUsers) {
-      var user = testUsers[key].body
-      var error = testUsers[key].error
-      var result = await api
-        .post('/api/users')
-        .send(user)
-        .expect(400)
-        .expect('Content-Type', /application\/json/)
-      expect(result.body.error).toContain(error)
-    }
-  }, 10000)
 })
 
 afterAll(() => {

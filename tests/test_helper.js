@@ -6,13 +6,28 @@ const initialBlogs = [
     title: 'first blog!',
     author: 'VC',
     url: 'https://github.com/VincentChuck/FSO-Blog',
-    likes: 9
+    likes: 9,
+    user: '636a211e6b4f00040d6bf3ac'
   },
   {
     title: 'second blog',
     author: 'RW',
     url: 'https://github.com/VincentChuck',
-    likes: 99
+    likes: 99,
+    user: '636bab4ce8b719c869943681'
+  }
+]
+
+const initialUsers = [
+  {
+    username: 'VVV',
+    name: 'VC',
+    password: 'vcPw'
+  },
+  {
+    username: 'RRR',
+    name: 'RW',
+    password: 'rwPw'
   }
 ]
 
@@ -36,6 +51,7 @@ const usersInDb = async () => {
 
 module.exports = {
   initialBlogs,
+  initialUsers,
   nonExistingId,
   blogsInDb,
   usersInDb
