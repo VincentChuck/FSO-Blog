@@ -14,3 +14,12 @@ content-type: application/json
   "username": "bbb",
   "password": "bbbpw"
 }
+
+###
+POST http://localhost:3003/api/login/
+content-type: application/json
+
+{
+  "username": "sampleUser",
+  "password": "samplePassword"
+}

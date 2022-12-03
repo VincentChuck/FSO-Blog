@@ -3,12 +3,12 @@ GET http://localhost:3003/api/blogs
 ### 
 POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJiYiIsImlkIjoiNjM2YmFiNGNlOGI3MTljODY5OTQzNjgxIiwiaWF0IjoxNjY4MDAwNjI4LCJleHAiOjE2NjgwMDQyMjh9.4dcB1naV4P1D73Q7xVQdacWxPUXlpR6CYlEBBg31O7E
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbXBsZVVzZXIiLCJpZCI6IjYzNmM3MjM0M2NjNzA4YzdjMmQyNTgwZCIsImlhdCI6MTY2ODc3Mzk3OCwiZXhwIjoxNjY4Nzc3NTc4fQ.YeRk9diSrThUXICfZ3XEL2zBr0SrdPyRpmh0vNR-ClE
 
 {
-  "title": "test authorization to delete blog",
-  "author": "bbb",
-  "url": "bbb.com",
+  "title": "sample blog",
+  "author": "sampleUser",
+  "url": "http://sampleBlog.com",
   "likes": 111  
 }
 
