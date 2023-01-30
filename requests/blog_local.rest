@@ -3,7 +3,7 @@ GET http://localhost:3003/api/blogs
 ### 
 POST http://localhost:3003/api/blogs/ HTTP/3
 content-type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhbXBsZVVzZXIiLCJpZCI6IjYzNmM3MjM0M2NjNzA4YzdjMmQyNTgwZCIsImlhdCI6MTY2ODc3Mzk3OCwiZXhwIjoxNjY4Nzc3NTc4fQ.YeRk9diSrThUXICfZ3XEL2zBr0SrdPyRpmh0vNR-ClE
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZjY2MiLCJpZCI6IjYzYWNhNTJlZDAxY2QzZGFiYWQxY2Y0NiIsImlhdCI6MTY3NTA2OTA2MCwiZXhwIjoxNjc1MDcyNjYwfQ.6w0r-lxOM0oWBSb33cUELx3Hs0xIVCTDJUIxSEI1wDs
 
 {
   "title": "sample blog",
@@ -13,7 +13,7 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhb
 }
 
 ### modify likes
-PUT http://localhost:3003/api/blogs/635d3a7c6b563a31747a1023
+PUT http://localhost:3003/api/blogs/63d0d8e4070db107cc2323a9
 Content-Type: application/json
 
 {
@@ -21,5 +21,13 @@ Content-Type: application/json
 }
 
 ### delete blog
-DELETE http://localhost:3003/api/blogs/636b711ef37bfe8d4979f992
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZjY2MiLCJpZCI6IjYzNmEyMTFlNmI0ZjAwMDQwZDZiZjNhYyIsImlhdCI6MTY2ODAwMTg0OSwiZXhwIjoxNjY4MDA1NDQ5fQ.8ZoQTrrCSM_XyJBfGkVH-CdGspET-O2OqfXtRmxLbCo
+DELETE http://localhost:3003/api/blogs/63d27367c788cf562feb174a
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZjY2MiLCJpZCI6IjYzYWNhNTJlZDAxY2QzZGFiYWQxY2Y0NiIsImlhdCI6MTY3NTA2OTA2MCwiZXhwIjoxNjc1MDcyNjYwfQ.6w0r-lxOM0oWBSb33cUELx3Hs0xIVCTDJUIxSEI1wDs
+
+### add comment
+POST http://localhost:3003/api/blogs/63d7a73aedabfc8c649faf7d/comments
+content-type: application/json
+
+{
+  "comment": "never gonna let you down"
+}
