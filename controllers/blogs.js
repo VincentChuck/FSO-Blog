@@ -17,18 +17,17 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/:id/comments', async (request, response) => {
   const blog = await findBlog(request, response);
-  const updatedComments = blog.comments
-    ? [
-        ...blog.comments,
-        { id: blog.comments.length, comment: request.body.comment },
-      ]
-    : [{ id: 0, comment: request.body.comment }];
+  const newComment = {
+    id: blog.comments.length,
+    comment: request.body.comment,
+  };
+  const updatedComments = [...blog.comments, newComment];
   const updatedBlog = await Blog.findByIdAndUpdate(
     request.params.id,
     { comments: updatedComments },
     { new: true }
   ).populate('user', { username: 1, name: 1 });
-  response.status(201).json(updatedBlog);
+  response.status(201).json(newComment);
 });
 
 blogsRouter.post('/', userExtractor, async (request, response) => {
